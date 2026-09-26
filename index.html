@@ -138,27 +138,27 @@
 
         /* Print Styles */
         @media print {
-            /* Задаємо формат А4 та мінімальні поля */
-            @page { size: A4 portrait; margin: 10mm; }
+            @page { size: A4 portrait; margin: 8mm; }
             
-            body { background: white; padding: 0; font-size: 12px; }
+            body { background: white; padding: 0; font-size: 11px; }
             #setup-panel, #action-panel { display: none !important; }
-            h1 { text-align: center; margin-bottom: 10px; font-size: 18px; }
+            h1 { text-align: center; margin-bottom: 10px; font-size: 16px; }
             
-            /* Зменшуємо відступи, щоб точно влізло на 1 сторінку */
-            .calendar-container { gap: 15px; }
-            .month { box-shadow: none; padding: 0; margin-bottom: 10px; page-break-inside: avoid; }
-            .month h2 { font-size: 14px; margin-bottom: 5px; }
-            .day { aspect-ratio: auto; height: 45px; font-size: 12px; }
+            .calendar-container { gap: 10px; }
+            .month { box-shadow: none; padding: 0; margin-bottom: 5px; page-break-inside: avoid; }
+            .month h2 { font-size: 13px; margin-bottom: 5px; }
+            /* Ущільнюємо сітку, щоб 100% помістилося на А4 */
+            .grid { gap: 2px; }
+            .day-name { margin-bottom: 4px; font-size: 10px; }
+            .day { aspect-ratio: auto; height: 35px; font-size: 12px; border-radius: 2px; }
+            .day-label { font-size: 9px; margin-top: 1px; }
             
-            /* ПРИМУСОВИЙ друк фонових кольорів у всіх браузерах */
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
             
             .day.work { background: #ffffff !important; color: #000 !important; border: 1px solid #aaa; }
-            /* Робимо вихідні помітно сірими */
             .day.off { background: #d0d0d0 !important; color: #000 !important; border: 1px solid #555; }
             
             .day.work .day-label { color: #333; content: "Роб"; display: block; }
@@ -205,15 +205,16 @@
             let urlT = urlParams.get('t');
 
             if (urlD && urlT) {
-                // If URL has params, prioritize them and save to localStorage
+                // Зберігаємо дані в local storage, але залишаємо параметри в URL для зручності
                 localStorage.setItem('sched_d', urlD);
                 localStorage.setItem('sched_t', urlT);
-                window.history.replaceState(null, null, window.location.pathname); // Clean URL
                 renderRealSchedule(urlD, urlT);
             } else {
                 let lsD = localStorage.getItem('sched_d');
                 let lsT = localStorage.getItem('sched_t');
                 if (lsD && lsT) {
+                    // Якщо параметрів в URL нема, але є в пам'яті - додаємо їх в URL
+                    window.history.replaceState(null, null, `?d=${lsD}&t=${lsT}`);
                     renderRealSchedule(lsD, lsT);
                 } else {
                     renderPlaceholder();
@@ -231,7 +232,6 @@
             localStorage.setItem('sched_d', d);
             localStorage.setItem('sched_t', t);
             
-            // Оновлюємо URL одразу після збереження
             window.history.replaceState(null, null, `?d=${d}&t=${t}`);
             
             renderRealSchedule(d, t);
@@ -249,9 +249,8 @@
         }
 
         function copyLink() {
-            const d = localStorage.getItem('sched_d');
-            const t = localStorage.getItem('sched_t');
-            const url = window.location.origin + window.location.pathname + `?d=${d}&t=${t}`;
+            // Тепер ми просто копіюємо поточний URL, бо параметри там завжди актуальні
+            const url = window.location.href;
             navigator.clipboard.writeText(url).then(() => {
                 alert("Посилання скопійовано! Можете відправити його друзям чи додати в закладки.");
             });
@@ -260,14 +259,12 @@
         // Math logic for schedule
         function checkDayType(targetDate, anchorDateStr, anchorType) {
             const anchorDate = new Date(anchorDateStr);
-            // Use UTC to avoid Timezone / DST shifts ruining calculations
             const utcTarget = Date.UTC(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
             const utcAnchor = Date.UTC(anchorDate.getFullYear(), anchorDate.getMonth(), anchorDate.getDate());
             
             const diffDays = Math.round((utcTarget - utcAnchor) / msPerDay);
             const anchorIndex = (anchorType === 'work1') ? 0 : 6;
             
-            // Cycle: 0,1,2,3,4,5 (Work), 6,7 (Off)
             let currentIndex = ((diffDays + anchorIndex) % 8 + 8) % 8;
             return currentIndex < 6 ? 'work' : 'off';
         }
@@ -279,9 +276,7 @@
         }
 
         function renderPlaceholder() {
-            // Set input default to today
             document.getElementById('date-input').valueAsDate = new Date();
-            // Generate a fake schedule for visuals
             generateCalendars(new Date().toISOString().split('T')[0], 'work1', true);
         }
 
@@ -296,10 +291,8 @@
             }
 
             const today = new Date();
-            // Start from the 1st day of the current month
             let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-            // Generate 3 months
             for (let m = 0; m < 3; m++) {
                 const monthDiv = document.createElement('div');
                 monthDiv.className = 'month';
@@ -311,7 +304,6 @@
                 const grid = document.createElement('div');
                 grid.className = 'grid';
 
-                // Headers
                 ukrDays.forEach(day => {
                     const dName = document.createElement('div');
                     dName.className = 'day-name';
@@ -319,9 +311,8 @@
                     grid.appendChild(dName);
                 });
 
-                // Blanks before first day of month
                 let firstDayIndex = currentMonth.getDay() - 1;
-                if (firstDayIndex === -1) firstDayIndex = 6; // Sunday is 0, make it 6
+                if (firstDayIndex === -1) firstDayIndex = 6;
 
                 for (let i = 0; i < firstDayIndex; i++) {
                     const blank = document.createElement('div');
@@ -329,7 +320,6 @@
                     grid.appendChild(blank);
                 }
 
-                // Days of month
                 const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dayDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
@@ -344,7 +334,6 @@
                 monthDiv.appendChild(grid);
                 container.appendChild(monthDiv);
                 
-                // Move to next month
                 currentMonth.setMonth(currentMonth.getMonth() + 1);
             }
         }
@@ -356,12 +345,16 @@
             let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//My Schedule//UK\n";
             let curDate = new Date();
             let endDate = new Date();
-            endDate.setMonth(endDate.getMonth() + 6); // Generate for 6 months ahead
+            endDate.setMonth(endDate.getMonth() + 6);
 
             while(curDate <= endDate) {
                 if(checkDayType(curDate, d, t) === 'work') {
-                    // Format date as YYYYMMDD
-                    const dateStr = curDate.toISOString().replace(/[-:]/g, '').slice(0,8);
+                    // Використовуємо локальний час, щоб уникнути зміщення дат через часові пояси
+                    const year = curDate.getFullYear();
+                    const month = String(curDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(curDate.getDate()).padStart(2, '0');
+                    const dateStr = `${year}${month}${day}`;
+                    
                     ics += "BEGIN:VEVENT\n";
                     ics += "DTSTART;VALUE=DATE:" + dateStr + "\n";
                     ics += "SUMMARY:Робочий день (6/2)\n";
