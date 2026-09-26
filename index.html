@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мій графік 6/2</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --text-color: #333;
+            --work-bg: #4a90e2;
+            --work-text: #fff;
+            --off-bg: #e24a4a;
+            --off-text: #fff;
+            --empty-bg: #eaeaea;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 { margin-bottom: 20px; }
+
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input, select, button {
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:hover { background-color: #555; }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .action-buttons button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            width: auto;
+        }
+
+        .action-buttons button:hover { background-color: #e0e0e0; }
+
+        .calendar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .month {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .month h2 { margin-top: 0; font-size: 1.2rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .day.work { background-color: var(--work-bg); color: var(--work-text); }
+        .day.off { background-color: var(--off-bg); color: var(--off-text); }
+        .day.empty { background-color: transparent; }
+
+        .day-label {
+            font-size: 0.6rem;
+            font-weight: normal;
+            margin-top: 2px;
+            opacity: 0.9;
+        }
+
+        /* Placeholder styles */
+        .placeholder-overlay {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        /* Print Styles */
+        @media print {
+            /* Задаємо формат А4 та мінімальні поля */
+            @page { size: A4 portrait; margin: 10mm; }
+            
+            body { background: white; padding: 0; font-size: 12px; }
+            #setup-panel, #action-panel { display: none !important; }
+            h1 { text-align: center; margin-bottom: 10px; font-size: 18px; }
+            
+            /* Зменшуємо відступи, щоб точно влізло на 1 сторінку */
+            .calendar-container { gap: 15px; }
+            .month { box-shadow: none; padding: 0; margin-bottom: 10px; page-break-inside: avoid; }
+            .month h2 { font-size: 14px; margin-bottom: 5px; }
+            .day { aspect-ratio: auto; height: 45px; font-size: 12px; }
+            
+            /* ПРИМУСОВИЙ друк фонових кольорів у всіх браузерах */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            .day.work { background: #ffffff !important; color: #000 !important; border: 1px solid #aaa; }
+            /* Робимо вихідні помітно сірими */
+            .day.off { background: #d0d0d0 !important; color: #000 !important; border: 1px solid #555; }
+            
+            .day.work .day-label { color: #333; content: "Роб"; display: block; }
+            .day.off .day-label { color: #000; font-weight: bold; content: "Вих"; display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Мій графік 6/2</h1>
+
+    <div id="setup-panel" class="panel">
+        <p>Оберіть відому вам дату вашого графіка, щоб система розрахувала розклад:</p>
+        <div class="form-group">
+            <input type="date" id="date-input">
+            <select id="type-input">
+                <option value="work1">Цей день: Мій 1-й РОБОЧИЙ день (із 6)</option>
+                <option value="off1">Цей день: Мій 1-й ВИХІДНИЙ день (із 2)</option>
+            </select>
+            <button onclick="saveAndGenerate()">Зберегти та показати графік</button>
+        </div>
+    </div>
+
+    <div id="action-panel" class="panel" style="display: none;">
+        <div class="action-buttons">
+            <button onclick="copyLink()">🔗 Копіювати посилання</button>
+            <button onclick="downloadICS()">📅 Експорт (.ics)</button>
+            <button onclick="window.print()">🖨️ Друк / PDF</button>
+            <button onclick="resetData()">🔄 Змінити графік</button>
+        </div>
+    </div>
+
+    <div id="calendar-container" class="calendar-container"></div>
+
+    <script>
+        const msPerDay = 1000 * 60 * 60 * 24;
+        const ukrMonths = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
+        const ukrDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+
+        // Init
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            let urlD = urlParams.get('d');
+            let urlT = urlParams.get('t');
+
+            if (urlD && urlT) {
+                // If URL has params, prioritize them and save to localStorage
+                localStorage.setItem('sched_d', urlD);
+                localStorage.setItem('sched_t', urlT);
+                window.history.replaceState(null, null, window.location.pathname); // Clean URL
+                renderRealSchedule(urlD, urlT);
+            } else {
+                let lsD = localStorage.getItem('sched_d');
+                let lsT = localStorage.getItem('sched_t');
+                if (lsD && lsT) {
+                    renderRealSchedule(lsD, lsT);
+                } else {
+                    renderPlaceholder();
+                }
+            }
+        });
+
+        function saveAndGenerate() {
+            const d = document.getElementById('date-input').value;
+            const t = document.getElementById('type-input').value;
+            if (!d) {
+                alert("Будь ласка, оберіть дату!");
+                return;
+            }
+            localStorage.setItem('sched_d', d);
+            localStorage.setItem('sched_t', t);
+            
+            // Оновлюємо URL одразу після збереження
+            window.history.replaceState(null, null, `?d=${d}&t=${t}`);
+            
+            renderRealSchedule(d, t);
+        }
+
+        function resetData() {
+            localStorage.removeItem('sched_d');
+            localStorage.removeItem('sched_t');
+            window.history.replaceState(null, null, window.location.pathname);
+            
+            document.getElementById('setup-panel').style.display = 'block';
+            document.getElementById('action-panel').style.display = 'none';
+            document.getElementById('date-input').value = '';
+            renderPlaceholder();
+        }
+
+        function copyLink() {
+            const d = localStorage.getItem('sched_d');
+            const t = localStorage.getItem('sched_t');
+            const url = window.location.origin + window.location.pathname + `?d=${d}&t=${t}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("Посилання скопійовано! Можете відправити його друзям чи додати в закладки.");
+            });
+        }
+
+        // Math logic for schedule
+        function checkDayType(targetDate, anchorDateStr, anchorType) {
+            const anchorDate = new Date(anchorDateStr);
+            // Use UTC to avoid Timezone / DST shifts ruining calculations
+            const utcTarget = Date.UTC(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+            const utcAnchor = Date.UTC(anchorDate.getFullYear(), anchorDate.getMonth(), anchorDate.getDate());
+            
+            const diffDays = Math.round((utcTarget - utcAnchor) / msPerDay);
+            const anchorIndex = (anchorType === 'work1') ? 0 : 6;
+            
+            // Cycle: 0,1,2,3,4,5 (Work), 6,7 (Off)
+            let currentIndex = ((diffDays + anchorIndex) % 8 + 8) % 8;
+            return currentIndex < 6 ? 'work' : 'off';
+        }
+
+        function renderRealSchedule(d, t) {
+            document.getElementById('setup-panel').style.display = 'none';
+            document.getElementById('action-panel').style.display = 'block';
+            generateCalendars(d, t, false);
+        }
+
+        function renderPlaceholder() {
+            // Set input default to today
+            document.getElementById('date-input').valueAsDate = new Date();
+            // Generate a fake schedule for visuals
+            generateCalendars(new Date().toISOString().split('T')[0], 'work1', true);
+        }
+
+        function generateCalendars(anchorDateStr, anchorType, isPlaceholder) {
+            const container = document.getElementById('calendar-container');
+            container.innerHTML = '';
+            
+            if (isPlaceholder) {
+                container.classList.add('placeholder-overlay');
+            } else {
+                container.classList.remove('placeholder-overlay');
+            }
+
+            const today = new Date();
+            // Start from the 1st day of the current month
+            let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            // Generate 3 months
+            for (let m = 0; m < 3; m++) {
+                const monthDiv = document.createElement('div');
+                monthDiv.className = 'month';
+                
+                const title = document.createElement('h2');
+                title.innerText = `${ukrMonths[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
+                monthDiv.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+
+                // Headers
+                ukrDays.forEach(day => {
+                    const dName = document.createElement('div');
+                    dName.className = 'day-name';
+                    dName.innerText = day;
+                    grid.appendChild(dName);
+                });
+
+                // Blanks before first day of month
+                let firstDayIndex = currentMonth.getDay() - 1;
+                if (firstDayIndex === -1) firstDayIndex = 6; // Sunday is 0, make it 6
+
+                for (let i = 0; i < firstDayIndex; i++) {
+                    const blank = document.createElement('div');
+                    blank.className = 'day empty';
+                    grid.appendChild(blank);
+                }
+
+                // Days of month
+                const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                    const type = checkDayType(dayDate, anchorDateStr, anchorType);
+                    
+                    const dayCell = document.createElement('div');
+                    dayCell.className = `day ${type}`;
+                    dayCell.innerHTML = `<span>${day}</span><span class="day-label">${type === 'work' ? 'Роб' : 'Вих'}</span>`;
+                    grid.appendChild(dayCell);
+                }
+
+                monthDiv.appendChild(grid);
+                container.appendChild(monthDiv);
+                
+                // Move to next month
+                currentMonth.setMonth(currentMonth.getMonth() + 1);
+            }
+        }
+
+        function downloadICS() {
+            const d = localStorage.getItem('sched_d');
+            const t = localStorage.getItem('sched_t');
+            
+            let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//My Schedule//UK\n";
+            let curDate = new Date();
+            let endDate = new Date();
+            endDate.setMonth(endDate.getMonth() + 6); // Generate for 6 months ahead
+
+            while(curDate <= endDate) {
+                if(checkDayType(curDate, d, t) === 'work') {
+                    // Format date as YYYYMMDD
+                    const dateStr = curDate.toISOString().replace(/[-:]/g, '').slice(0,8);
+                    ics += "BEGIN:VEVENT\n";
+                    ics += "DTSTART;VALUE=DATE:" + dateStr + "\n";
+                    ics += "SUMMARY:Робочий день (6/2)\n";
+                    ics += "END:VEVENT\n";
+                }
+                curDate.setDate(curDate.getDate() + 1);
+            }
+            ics += "END:VCALENDAR";
+
+            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'schedule.ics';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
