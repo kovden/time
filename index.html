@@ -176,6 +176,14 @@
             .day.work .day-label { color: #333; content: "Роб"; display: block; }
             .day.off .day-label { color: #000; font-weight: bold; content: "Вих"; display: block; }
             .day.today { box-shadow: none !important; }
+            * Примусово зменшуємо цифру в PDF, щоб мітка "Роб/Вих" не вилазила */
+            .day span:first-child {
+                font-size: 16px !important; 
+                line-height: 1;
+            }
+            .day-label {
+                margin-top: 2px !important;
+            }
         }
     </style>
 </head>
