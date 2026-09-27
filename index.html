@@ -25,6 +25,10 @@
             text-align: center;
         }
 
+        #print-legend {
+            display: none; /* Ховаємо легенду на екрані ПК і телефону */
+        }
+        
         h1 { margin-bottom: 20px; }
 
         .panel {
@@ -173,10 +177,8 @@
             .day.work { background: #ffffff !important; color: #000 !important; border: 1px solid #aaa; }
             .day.off { background: #d0d0d0 !important; color: #000 !important; border: 1px solid #555; }
             
-            .day.work .day-label { color: #333; content: "Роб"; display: block; }
-            .day.off .day-label { color: #000; font-weight: bold; content: "Вих"; display: block; }
             .day.today { box-shadow: none !important; }
-            * Примусово зменшуємо цифру в PDF, щоб мітка "Роб/Вих" не вилазила */
+
             .day span:first-child {
                 font-size: 16px !important; 
                 line-height: 1;
@@ -184,13 +186,24 @@
             .day-label {
                 margin-top: 2px !important;
             }
+
+            #print-legend { 
+            display: block !important; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            font-size: 14px; 
+            font-style: italic;
+            }
+            
+            .day-label { display: none !important; }
+            
         }
     </style>
 </head>
 <body>
 
     <h1>Мій графік 6/2</h1>
-
+    <div id="print-legend">Світла клітинка — робочий день, сіра клітинка — вихідний.</div>
     <div id="setup-panel" class="panel">
         <p>Оберіть відому вам дату вашого графіка, щоб система розрахувала розклад:</p>
         <div class="form-group">
