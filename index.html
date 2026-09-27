@@ -128,7 +128,19 @@
             margin-top: 2px;
             opacity: 0.9;
         }
+        /* Підсвітка сьогоднішнього дня */
+        .day.today {
+            box-shadow: inset 0 0 0 4px #ffde59; /* Яскрава жовта внутрішня рамка */
+            z-index: 1; /* Щоб рамка не перекривалася сусідами */
+        }
 
+        /* Збільшення числа дати тільки на ПК (екрани ширші за 768px) */
+        @media (min-width: 768px) {
+            .day span:first-child {
+                font-size: 1.6rem; /* Робимо цифру дати помітно більшою */
+            }
+        }
+        
         /* Placeholder styles */
         .placeholder-overlay {
             opacity: 0.4;
@@ -163,6 +175,7 @@
             
             .day.work .day-label { color: #333; content: "Роб"; display: block; }
             .day.off .day-label { color: #000; font-weight: bold; content: "Вих"; display: block; }
+            .day.today { box-shadow: none !important; }
         }
     </style>
 </head>
@@ -325,8 +338,14 @@
                     const dayDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
                     const type = checkDayType(dayDate, anchorDateStr, anchorType);
                     
+                    // Перевіряємо, чи день збігається з сьогоднішнім
+                    const isToday = dayDate.getDate() === today.getDate() && 
+                                    dayDate.getMonth() === today.getMonth() && 
+                                    dayDate.getFullYear() === today.getFullYear();
+                    
                     const dayCell = document.createElement('div');
-                    dayCell.className = `day ${type}`;
+                    // Додаємо клас today, якщо умова виконалася
+                    dayCell.className = `day ${type} ${isToday ? 'today' : ''}`;
                     dayCell.innerHTML = `<span>${day}</span><span class="day-label">${type === 'work' ? 'Роб' : 'Вих'}</span>`;
                     grid.appendChild(dayCell);
                 }
