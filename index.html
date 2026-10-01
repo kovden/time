@@ -132,6 +132,15 @@
             margin-top: 2px;
             opacity: 0.9;
         }
+        .past-month {
+            opacity: 0.65; /* Робимо його напівпрозорим, щоб відрізнявся */
+        }
+        
+        #toggle-past-btn {
+            background-color: #e0e0e0;
+            color: #333;
+            border: 1px solid #ccc;
+        }
         /* Підсвітка сьогоднішнього дня */
         .day.today {
             box-shadow: inset 0 0 0 4px #ffde59; /* Яскрава жовта внутрішня рамка */
@@ -196,7 +205,8 @@
             }
             
             .day-label { display: none !important; }
-            
+
+            #toggle-past-btn, #past-month-block { display: none !important; }
         }
     </style>
 </head>
@@ -224,7 +234,7 @@
             <button onclick="resetData()">🔄 Змінити графік</button>
         </div>
     </div>
-
+    <button id="toggle-past-btn" onclick="togglePastMonth()" style="display: none; margin: 0 auto 20px auto; width: auto;">⏳ Минулий місяць</button>
     <div id="calendar-container" class="calendar-container"></div>
 
     <script>
@@ -325,14 +335,24 @@
             }
 
             const today = new Date();
-            let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            // Починаємо генерацію з попереднього місяця (-1)
+            let currentMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
 
-            for (let m = 0; m < 3; m++) {
+            // Генеруємо 4 місяці (минулий + 3 майбутніх)
+            for (let m = 0; m < 4; m++) {
                 const monthDiv = document.createElement('div');
                 monthDiv.className = 'month';
                 
+                // Налаштування для минулого місяця
+                if (m === 0) {
+                    monthDiv.id = 'past-month-block';
+                    monthDiv.style.display = 'none'; // Ховаємо за замовчуванням
+                    monthDiv.classList.add('past-month');
+                }
+                
                 const title = document.createElement('h2');
                 title.innerText = `${ukrMonths[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
+                if (m === 0) title.innerText += ' (Минулий)'; // Додаємо мітку
                 monthDiv.appendChild(title);
 
                 const grid = document.createElement('div');
@@ -375,6 +395,27 @@
                 container.appendChild(monthDiv);
                 
                 currentMonth.setMonth(currentMonth.getMonth() + 1);
+            }
+            const toggleBtn = document.getElementById('toggle-past-btn');
+            if (toggleBtn) {
+                if (!isPlaceholder) {
+                    toggleBtn.style.display = 'block';
+                    toggleBtn.innerText = '⏳ Показати минулий місяць';
+                } else {
+                    toggleBtn.style.display = 'none';
+                }
+            }
+        }
+
+        function togglePastMonth() {
+            const pastBlock = document.getElementById('past-month-block');
+            const btn = document.getElementById('toggle-past-btn');
+            if (pastBlock.style.display === 'none') {
+                pastBlock.style.display = 'block';
+                btn.innerText = '⬆️ Сховати минулий місяць';
+            } else {
+                pastBlock.style.display = 'none';
+                btn.innerText = '⏳ Показати минулий місяць';
             }
         }
 
