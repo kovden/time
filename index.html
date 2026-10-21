@@ -1,476 +1,270 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мій графік 6/2</title>
-    <style>
-        :root {
-            --bg-color: #f4f4f9;
-            --text-color: #333;
-            --work-bg: #4a90e2;
-            --work-text: #fff;
-            --off-bg: #e24a4a;
-            --off-text: #fff;
-            --empty-bg: #eaeaea;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-
-        #print-legend {
-            display: none; /* Ховаємо легенду на екрані ПК і телефону */
-        }
-        
-        h1 { margin-bottom: 20px; }
-
-        .panel {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-
-        input, select, button {
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            max-width: 300px;
-            width: 100%;
-        }
-
-        button {
-            background-color: #333;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
-        button:hover { background-color: #555; }
-        
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .action-buttons button {
-            background-color: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-            width: auto;
-        }
-
-        .action-buttons button:hover { background-color: #e0e0e0; }
-
-        .calendar-container {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .month {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .month h2 { margin-top: 0; font-size: 1.2rem; }
-
-        .work-count {
-            font-size: 0.85rem;
-            color: #777;
-            font-weight: normal;
-            margin-left: 8px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
-
-        .day-name {
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            color: #666;
-        }
-
-        .day {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-
-        .day.work { background-color: var(--work-bg); color: var(--work-text); }
-        .day.off { background-color: var(--off-bg); color: var(--off-text); }
-        .day.empty { background-color: transparent; }
-
-        .day-label {
-            font-size: 0.6rem;
-            font-weight: normal;
-            margin-top: 2px;
-            opacity: 0.9;
-        }
-        .past-month {
-            opacity: 0.65; /* Робимо його напівпрозорим, щоб відрізнявся */
-        }
-        
-        #toggle-past-btn {
-            background-color: #e0e0e0;
-            color: #333;
-            border: 1px solid #ccc;
-        }
-        /* Підсвітка сьогоднішнього дня */
-        .day.today {
-            box-shadow: inset 0 0 0 4px #ffde59; /* Яскрава жовта внутрішня рамка */
-            z-index: 1; /* Щоб рамка не перекривалася сусідами */
-        }
-
-        /* Збільшення числа дати тільки на ПК (екрани ширші за 768px) */
-        @media (min-width: 768px) {
-            .day span:first-child {
-                font-size: 1.6rem; /* Робимо цифру дати помітно більшою */
-            }
-        }
-        
-        /* Placeholder styles */
-        .placeholder-overlay {
-            opacity: 0.4;
-            pointer-events: none;
-            filter: grayscale(100%);
-        }
-
-        /* Print Styles */
-        @media print {
-            @page { size: A4 portrait; margin: 8mm; }
-            
-            body { background: white; padding: 0; font-size: 11px; }
-            #setup-panel, #action-panel { display: none !important; }
-            h1 { text-align: center; margin-bottom: 10px; font-size: 16px; }
-            
-            .calendar-container { gap: 10px; }
-            .month { box-shadow: none; padding: 0; margin-bottom: 5px; page-break-inside: avoid; }
-            .month h2 { font-size: 13px; margin-bottom: 5px; }
-            /* Ущільнюємо сітку, щоб 100% помістилося на А4 */
-            .grid { gap: 2px; }
-            .day-name { margin-bottom: 4px; font-size: 10px; }
-            .day { aspect-ratio: auto; height: 35px; font-size: 12px; border-radius: 2px; }
-            .day-label { font-size: 9px; margin-top: 1px; }
-            
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            .day.work { background: #ffffff !important; color: #000 !important; border: 1px solid #aaa; }
-            .day.off { background: #d0d0d0 !important; color: #000 !important; border: 1px solid #555; }
-            
-            .day.today { box-shadow: none !important; }
-
-            .day span:first-child {
-                font-size: 16px !important; 
-                line-height: 1;
-            }
-            .day-label {
-                margin-top: 2px !important;
-            }
-
-            #print-legend { 
-            display: block !important; 
-            text-align: center; 
-            margin-bottom: 15px; 
-            font-size: 14px; 
-            font-style: italic;
-            }
-            
-            .day-label { display: none !important; }
-
-            #toggle-past-btn, #past-month-block { display: none !important; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мій графік 4/2</title>
+<meta name="theme-color" content="#e2efdb">
+<meta name="application-name" content="Графік 4/2">
+<meta name="apple-mobile-web-app-title" content="Графік 4/2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#f4f4f9;--text:#333;--morning:#e2efdb;--evening:#fff2cd;--off:#f2f2f2}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);max-width:800px;margin:0 auto;padding:20px;text-align:center}
+h1{margin-bottom:20px}
+#print-legend{display:none}
+.panel{background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 6px rgba(0,0,0,.05);margin-bottom:20px}
+.form-group{display:flex;flex-direction:column;gap:10px;align-items:center}
+input,button{padding:10px 15px;font-size:16px;border-radius:8px;border:1px solid #ccc;max-width:300px;width:100%;box-sizing:border-box}
+button{background:#333;color:#fff;border:none;cursor:pointer;font-weight:bold;transition:.2s}
+button:hover{background:#555}
+.action-buttons{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.action-buttons button{background:#f0f0f0;color:#333;border:1px solid #ddd;width:auto}
+.action-buttons button:hover{background:#e0e0e0}
+.legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:.85rem;margin-bottom:20px}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #ccc;margin-right:6px;vertical-align:-1px}
+.legend .l-m::before{background:var(--morning)}
+.legend .l-e::before{background:var(--evening)}
+.legend .l-o::before{background:var(--off)}
+.calendar-container{display:flex;flex-direction:column;gap:30px}
+.month{background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 6px rgba(0,0,0,.05)}
+.month h2{margin-top:0;font-size:1.2rem}
+.work-count{font-size:.85rem;color:#777;font-weight:normal;margin-left:8px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.day-name{font-weight:bold;font-size:.9rem;margin-bottom:10px;color:#666}
+.day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;font-size:1.1rem;font-weight:bold}
+.day.morning{background:var(--morning);color:#333}
+.day.evening{background:var(--evening);color:#333}
+.day.off{background:var(--off);color:#666}
+.day.empty{background:transparent}
+.day-label{font-size:.6rem;font-weight:normal;margin-top:2px;opacity:.9}
+.past-month{opacity:.65}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:8px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:10}
+#toast.show{opacity:1}
+#toggle-past-btn{background:#e0e0e0;color:#333;border:1px solid #ccc;display:none;margin:0 auto 20px;width:auto}
+.day.today{box-shadow:inset 0 0 0 4px #222;z-index:1}
+@media (min-width:768px){.day span:first-child{font-size:1.6rem}}
+.placeholder-overlay{opacity:.4;pointer-events:none;filter:grayscale(100%)}
+@media print{
+#toast{display:none!important}
+@page{size:A4 portrait;margin:8mm}
+body{background:#fff;padding:0;font-size:11px}
+#setup-panel,#action-panel,.legend{display:none!important}
+h1{margin-bottom:10px;font-size:16px}
+.calendar-container{gap:10px}
+.month{box-shadow:none;padding:0;margin-bottom:5px;page-break-inside:avoid}
+.month h2{font-size:13px;margin-bottom:5px}
+.grid{gap:2px}
+.day-name{margin-bottom:4px;font-size:10px}
+.day{aspect-ratio:auto;height:35px;font-size:12px;border-radius:2px}
+.day span:first-child{font-size:16px!important;line-height:1}
+.day-label{font-size:9px;margin-top:2px;opacity:1}
+*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.day.morning{background:#fff!important;color:#000!important;border:1px solid #777}
+.day.evening{background:repeating-linear-gradient(45deg,#fff,#fff 3px,#cfcfcf 3px,#cfcfcf 5px)!important;color:#000!important;border:1px solid #777}
+.day.off{background:#8a8a8a!important;color:#fff!important;border:1px solid #444}
+.day.today{box-shadow:none!important}
+#print-legend{display:block!important;margin-bottom:12px;font-size:13px;font-style:italic}
+#toggle-past-btn,#past-month-block{display:none!important}
+}
+</style>
 </head>
 <body>
-
-    <h1>Мій графік 6/2</h1>
-    <div id="print-legend">Світла клітинка — робочий день, сіра клітинка — вихідний.</div>
-    <div id="setup-panel" class="panel">
-        <p>Оберіть відому вам дату вашого графіка, щоб система розрахувала розклад:</p>
-        <div class="form-group">
-            <input type="date" id="date-input">
-            <select id="type-input">
-                <option value="work1">Цей день: Мій 1-й РОБОЧИЙ день (із 6)</option>
-                <option value="off1">Цей день: Мій 1-й ВИХІДНИЙ день (із 2)</option>
-            </select>
-            <button onclick="saveAndGenerate()">Зберегти та показати графік</button>
-        </div>
-    </div>
-
-    <div id="action-panel" class="panel" style="display: none;">
-        <div class="action-buttons">
-            <button onclick="copyLink()">🔗 Копіювати посилання</button>
-            <button onclick="downloadICS()">📅 Експорт (.ics)</button>
-            <button onclick="window.print()">🖨️ Друк / PDF</button>
-            <button onclick="resetData()">🔄 Змінити графік</button>
-        </div>
-    </div>
-    <button id="toggle-past-btn" onclick="togglePastMonth()" style="display: none; margin: 0 auto 20px auto; width: auto;">⏳ Минулий місяць</button>
-    <div id="calendar-container" class="calendar-container"></div>
-
-    <script>
-        const msPerDay = 1000 * 60 * 60 * 24;
-        const ukrMonths = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
-        const ukrDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
-
-        // Init
-        document.addEventListener("DOMContentLoaded", () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            let urlD = urlParams.get('d');
-            let urlT = urlParams.get('t');
-
-            if (urlD && urlT) {
-                // Зберігаємо дані в local storage, але залишаємо параметри в URL для зручності
-                localStorage.setItem('sched_d', urlD);
-                localStorage.setItem('sched_t', urlT);
-                renderRealSchedule(urlD, urlT);
-            } else {
-                let lsD = localStorage.getItem('sched_d');
-                let lsT = localStorage.getItem('sched_t');
-                if (lsD && lsT) {
-                    // Якщо параметрів в URL нема, але є в пам'яті - додаємо їх в URL
-                    window.history.replaceState(null, null, `?d=${lsD}&t=${lsT}`);
-                    renderRealSchedule(lsD, lsT);
-                } else {
-                    renderPlaceholder();
-                }
-            }
-        });
-
-        function saveAndGenerate() {
-            const d = document.getElementById('date-input').value;
-            const t = document.getElementById('type-input').value;
-            if (!d) {
-                alert("Будь ласка, оберіть дату!");
-                return;
-            }
-            localStorage.setItem('sched_d', d);
-            localStorage.setItem('sched_t', t);
-            
-            window.history.replaceState(null, null, `?d=${d}&t=${t}`);
-            
-            renderRealSchedule(d, t);
-        }
-
-        function resetData() {
-            localStorage.removeItem('sched_d');
-            localStorage.removeItem('sched_t');
-            window.history.replaceState(null, null, window.location.pathname);
-            
-            document.getElementById('setup-panel').style.display = 'block';
-            document.getElementById('action-panel').style.display = 'none';
-            document.getElementById('date-input').value = '';
-            renderPlaceholder();
-        }
-
-        function copyLink() {
-            // Тепер ми просто копіюємо поточний URL, бо параметри там завжди актуальні
-            const url = window.location.href;
-            navigator.clipboard.writeText(url).then(() => {
-                alert("Посилання скопійовано! Можете відправити його друзям чи додати в закладки.");
-            });
-        }
-
-        // Math logic for schedule
-        function checkDayType(targetDate, anchorDateStr, anchorType) {
-            const anchorDate = new Date(anchorDateStr);
-            const utcTarget = Date.UTC(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
-            const utcAnchor = Date.UTC(anchorDate.getFullYear(), anchorDate.getMonth(), anchorDate.getDate());
-            
-            const diffDays = Math.round((utcTarget - utcAnchor) / msPerDay);
-            const anchorIndex = (anchorType === 'work1') ? 0 : 6;
-            
-            let currentIndex = ((diffDays + anchorIndex) % 8 + 8) % 8;
-            return currentIndex < 6 ? 'work' : 'off';
-        }
-
-        function renderRealSchedule(d, t) {
-            document.getElementById('setup-panel').style.display = 'none';
-            document.getElementById('action-panel').style.display = 'block';
-            generateCalendars(d, t, false);
-        }
-
-        function renderPlaceholder() {
-            document.getElementById('date-input').valueAsDate = new Date();
-            generateCalendars(new Date().toISOString().split('T')[0], 'work1', true);
-        }
-
-        function generateCalendars(anchorDateStr, anchorType, isPlaceholder) {
-            const container = document.getElementById('calendar-container');
-            container.innerHTML = '';
-            
-            if (isPlaceholder) {
-                container.classList.add('placeholder-overlay');
-            } else {
-                container.classList.remove('placeholder-overlay');
-            }
-
-            const today = new Date();
-            // Починаємо генерацію з попереднього місяця (-1)
-            let currentMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-
-            // Генеруємо 4 місяці (минулий + 3 майбутніх)
-            for (let m = 0; m < 4; m++) {
-                const monthDiv = document.createElement('div');
-                monthDiv.className = 'month';
-                
-                // Налаштування для минулого місяця
-                if (m === 0) {
-                    monthDiv.id = 'past-month-block';
-                    monthDiv.style.display = 'none'; // Ховаємо за замовчуванням
-                    monthDiv.classList.add('past-month');
-                }
-                
-                const title = document.createElement('h2');
-                title.innerText = `${ukrMonths[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
-                // if (m === 0) title.innerText += ' (Минулий)'; 
-                
-                // Створюємо елемент для кількості змін
-                const countSpan = document.createElement('span');
-                countSpan.className = 'work-count';
-                title.appendChild(countSpan);
-                
-                monthDiv.appendChild(title);
-
-                let workDaysCount = 0; // Змінна для підрахунку
-
-                const grid = document.createElement('div');
-                grid.className = 'grid';
-
-                ukrDays.forEach(day => {
-                    const dName = document.createElement('div');
-                    dName.className = 'day-name';
-                    dName.innerText = day;
-                    grid.appendChild(dName);
-                });
-
-                let firstDayIndex = currentMonth.getDay() - 1;
-                if (firstDayIndex === -1) firstDayIndex = 6;
-
-                for (let i = 0; i < firstDayIndex; i++) {
-                    const blank = document.createElement('div');
-                    blank.className = 'day empty';
-                    grid.appendChild(blank);
-                }
-
-                const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-                    const type = checkDayType(dayDate, anchorDateStr, anchorType);
-                    if (type === 'work') {
-                        workDaysCount++;
-                    }
-                    
-                    // Перевіряємо, чи день збігається з сьогоднішнім
-                    const isToday = dayDate.getDate() === today.getDate() && 
-                                    dayDate.getMonth() === today.getMonth() && 
-                                    dayDate.getFullYear() === today.getFullYear();
-                    
-                    const dayCell = document.createElement('div');
-                    // Додаємо клас today, якщо умова виконалася
-                    dayCell.className = `day ${type} ${isToday ? 'today' : ''}`;
-                    dayCell.innerHTML = `<span>${day}</span><span class="day-label">${type === 'work' ? 'Роб' : 'Вих'}</span>`;
-                    grid.appendChild(dayCell);
-                }
-                countSpan.innerText = `— ${workDaysCount} робочих змін`;
-                monthDiv.appendChild(grid);
-                container.appendChild(monthDiv);
-                
-                currentMonth.setMonth(currentMonth.getMonth() + 1);
-            }
-            const toggleBtn = document.getElementById('toggle-past-btn');
-            if (toggleBtn) {
-                if (!isPlaceholder) {
-                    toggleBtn.style.display = 'block';
-                    toggleBtn.innerText = '⏳ Показати минулий місяць';
-                } else {
-                    toggleBtn.style.display = 'none';
-                }
-            }
-        }
-
-        function togglePastMonth() {
-            const pastBlock = document.getElementById('past-month-block');
-            const btn = document.getElementById('toggle-past-btn');
-            if (pastBlock.style.display === 'none') {
-                pastBlock.style.display = 'block';
-                btn.innerText = '⬆️ Сховати минулий місяць';
-            } else {
-                pastBlock.style.display = 'none';
-                btn.innerText = '⏳ Показати минулий місяць';
-            }
-        }
-
-        function downloadICS() {
-            const d = localStorage.getItem('sched_d');
-            const t = localStorage.getItem('sched_t');
-            
-            let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//My Schedule//UK\n";
-            let curDate = new Date();
-            let endDate = new Date();
-            endDate.setMonth(endDate.getMonth() + 6);
-
-            while(curDate <= endDate) {
-                if(checkDayType(curDate, d, t) === 'work') {
-                    // Використовуємо локальний час, щоб уникнути зміщення дат через часові пояси
-                    const year = curDate.getFullYear();
-                    const month = String(curDate.getMonth() + 1).padStart(2, '0');
-                    const day = String(curDate.getDate()).padStart(2, '0');
-                    const dateStr = `${year}${month}${day}`;
-                    
-                    ics += "BEGIN:VEVENT\n";
-                    ics += "DTSTART;VALUE=DATE:" + dateStr + "\n";
-                    ics += "SUMMARY:Робочий день (6/2)\n";
-                    ics += "END:VEVENT\n";
-                }
-                curDate.setDate(curDate.getDate() + 1);
-            }
-            ics += "END:VCALENDAR";
-
-            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'schedule.ics';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
+<h1>Мій графік 4/2</h1>
+<div id="print-legend">Біла клітинка — ранкова зміна, штрихована — вечірня, темно-сіра — вихідний.</div>
+ 
+<div id="setup-panel" class="panel">
+  <div class="form-group">
+    <label for="date-input"><b>Дата першої ранкової зміни</b> у вашому поточному блоці:</label>
+    <input type="date" id="date-input">
+    <button onclick="saveAndGenerate()">Показати графік</button>
+  </div>
+</div>
+ 
+<div id="action-panel" class="panel" style="display:none">
+  <div class="action-buttons">
+    <button onclick="shareLink()">🔗 Поділитися</button>
+    <button onclick="window.print()">🖨️ Друк / PDF</button>
+    <button onclick="resetData()">🔄 Змінити графік</button>
+  </div>
+</div>
+ 
+<div class="legend"><span class="l-m">Ранок (1)</span><span class="l-e">Вечір (2)</span><span class="l-o">Вихідний</span></div>
+<button id="toggle-past-btn" onclick="togglePastMonth()">⏳ Показати минулий місяць</button>
+<div id="toast"></div>
+<div id="calendar-container" class="calendar-container"></div>
+ 
+<script>
+const msPerDay = 86400000;
+const LS_KEY = 'sched42_start';
+const ukrMonths = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+const ukrDays = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+const labels = { morning: 'Ранок', evening: 'Вечір', off: 'Вих' };
+ 
+function parseDate(s) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s || '')) return null;
+  const [y, m, d] = s.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  return isNaN(dt) ? null : dt;
+}
+const pad = n => String(n).padStart(2, '0');
+ 
+document.addEventListener('DOMContentLoaded', () => {
+  // Посилання нового формату: ?s=РРРР-ММ-ДД (старі посилання ?d=&t= ігноруються)
+  const urlS = new URLSearchParams(location.search).get('s');
+  const saved = localStorage.getItem(LS_KEY);
+  const start = parseDate(urlS) ? urlS : (parseDate(saved) ? saved : null);
+  if (start) {
+    localStorage.setItem(LS_KEY, start);
+    history.replaceState(null, null, `?s=${start}`);
+    renderReal(start);
+  } else {
+    renderPlaceholder();
+  }
+});
+ 
+function saveAndGenerate() {
+  const s = document.getElementById('date-input').value;
+  if (!parseDate(s)) { alert('Будь ласка, оберіть дату!'); return; }
+  localStorage.setItem(LS_KEY, s);
+  history.replaceState(null, null, `?s=${s}`);
+  renderReal(s);
+}
+ 
+function resetData() {
+  const s = localStorage.getItem(LS_KEY);
+  localStorage.removeItem(LS_KEY);
+  history.replaceState(null, null, location.pathname);
+  document.getElementById('setup-panel').style.display = 'block';
+  document.getElementById('action-panel').style.display = 'none';
+  document.getElementById('date-input').value = s || '';
+  renderPlaceholder();
+}
+ 
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+ 
+async function shareLink() {
+  const url = location.href;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Мій графік 4/2', url });
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') return; // користувач закрив меню
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast('Посилання скопійовано ✓');
+  } catch (e) {
+    prompt('Скопіюйте посилання:', url);
+  }
+}
+ 
+// Цикл 12 днів: 0-3 ранок, 4-5 вихідні, 6-9 вечір, 10-11 вихідні
+function checkDayType(date, startStr) {
+  const a = parseDate(startStr);
+  const diff = Math.round((Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) -
+                           Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / msPerDay);
+  const i = ((diff % 12) + 12) % 12;
+  if (i < 4) return 'morning';
+  if (i >= 6 && i < 10) return 'evening';
+  return 'off';
+}
+ 
+function renderReal(s) {
+  document.getElementById('setup-panel').style.display = 'none';
+  document.getElementById('action-panel').style.display = 'block';
+  generateCalendars(s, false);
+}
+ 
+function renderPlaceholder() {
+  const t = new Date();
+  const s = `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+  document.getElementById('date-input').value = s;
+  generateCalendars(s, true);
+}
+ 
+function generateCalendars(startStr, isPlaceholder) {
+  const container = document.getElementById('calendar-container');
+  container.innerHTML = '';
+  container.classList.toggle('placeholder-overlay', isPlaceholder);
+ 
+  const today = new Date();
+  let cur = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+ 
+  for (let m = 0; m < 4; m++) {
+    const monthDiv = document.createElement('div');
+    monthDiv.className = 'month';
+    if (m === 0) {
+      monthDiv.id = 'past-month-block';
+      monthDiv.style.display = 'none';
+      monthDiv.classList.add('past-month');
+    }
+    const title = document.createElement('h2');
+    title.innerText = `${ukrMonths[cur.getMonth()]} ${cur.getFullYear()}`;
+    const countSpan = document.createElement('span');
+    countSpan.className = 'work-count';
+    title.appendChild(countSpan);
+    monthDiv.appendChild(title);
+ 
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    ukrDays.forEach(n => {
+      const el = document.createElement('div');
+      el.className = 'day-name';
+      el.innerText = n;
+      grid.appendChild(el);
+    });
+ 
+    let first = cur.getDay() - 1;
+    if (first === -1) first = 6;
+    for (let i = 0; i < first; i++) {
+      const b = document.createElement('div');
+      b.className = 'day empty';
+      grid.appendChild(b);
+    }
+ 
+    let total = 0;
+    const dim = new Date(cur.getFullYear(), cur.getMonth() + 1, 0).getDate();
+    for (let day = 1; day <= dim; day++) {
+      const dt = new Date(cur.getFullYear(), cur.getMonth(), day);
+      const type = checkDayType(dt, startStr);
+      if (type !== 'off') total++;
+      const isToday = dt.toDateString() === today.toDateString();
+      const cell = document.createElement('div');
+      cell.className = `day ${type}${isToday ? ' today' : ''}`;
+      cell.innerHTML = `<span>${day}</span><span class="day-label">${labels[type]}</span>`;
+      grid.appendChild(cell);
+    }
+    countSpan.innerText = `— ${total} робочих змін`;
+    monthDiv.appendChild(grid);
+    container.appendChild(monthDiv);
+    cur.setMonth(cur.getMonth() + 1);
+  }
+ 
+  const btn = document.getElementById('toggle-past-btn');
+  btn.style.display = isPlaceholder ? 'none' : 'block';
+  btn.innerText = '⏳ Показати минулий місяць';
+}
+ 
+function togglePastMonth() {
+  const block = document.getElementById('past-month-block');
+  const btn = document.getElementById('toggle-past-btn');
+  const hidden = block.style.display === 'none';
+  block.style.display = hidden ? 'block' : 'none';
+  btn.innerText = hidden ? '⬆️ Сховати минулий місяць' : '⏳ Показати минулий місяць';
+}
+ 
+</script>
 </body>
 </html>
