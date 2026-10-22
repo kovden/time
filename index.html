@@ -4,53 +4,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Мій графік 4/2</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="theme-color" content="#e2efdb">
+<script>
+try{var t=localStorage.getItem('sched42_theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;if(t==='dark')document.querySelector('meta[name=theme-color]').content='#12151a';}catch(e){}
+</script>
 <meta name="application-name" content="Графік 4/2">
 <meta name="apple-mobile-web-app-title" content="Графік 4/2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="robots" content="noindex, nofollow, noarchive">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E">
 <style>
-:root{--bg:#f4f4f9;--text:#333;--morning:#e2efdb;--evening:#fff2cd;--off:#f2f2f2}
+:root{color-scheme:light;--bg:#f4f4f9;--text:#333;--panel:#fff;--muted:#666;--muted2:#777;--border:#ccc;--shadow:rgba(0,0,0,.05);
+--btn:#333;--btn-text:#fff;--btn-hover:#555;--btn2:#f0f0f0;--btn2-border:#ddd;--btn2-hover:#e0e0e0;--input-bg:#fff;--today:#222;--toast:#333;
+--morning:#e2efdb;--morning-t:#333;--evening:#fff2cd;--evening-t:#333;--off:#f2f2f2;--off-t:#666}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#12151a;--text:#e4e7eb;--panel:#1b2027;--muted:#9aa4b0;--muted2:#8a94a0;--border:#343c47;--shadow:rgba(0,0,0,.35);
+--btn:#5a7fd6;--btn-text:#fff;--btn-hover:#6b8de0;--btn2:#252b34;--btn2-border:#343c47;--btn2-hover:#2d343f;--input-bg:#232932;--today:#e4e7eb;--toast:#2d343f;
+--morning:#2d4a3b;--morning-t:#d5ecdc;--evening:#54482a;--evening-t:#f1e2b5;--off:#20252d;--off-t:#6f7985}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);max-width:800px;margin:0 auto;padding:20px;text-align:center}
 h1{margin-bottom:20px}
 #print-legend{display:none}
-.panel{background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 6px rgba(0,0,0,.05);margin-bottom:20px}
+.panel{background:var(--panel);padding:20px;border-radius:12px;box-shadow:0 4px 6px var(--shadow);margin-bottom:20px}
 .form-group{display:flex;flex-direction:column;gap:10px;align-items:center}
-input,select,button{padding:10px 15px;font-size:16px;border-radius:8px;border:1px solid #ccc;max-width:300px;width:100%;box-sizing:border-box}
-button{background:#333;color:#fff;border:none;cursor:pointer;font-weight:bold;transition:.2s}
-button:hover{background:#555}
+input,select,button{padding:10px 15px;font-size:16px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);max-width:300px;width:100%;box-sizing:border-box}
+button{background:var(--btn);color:var(--btn-text);border:none;cursor:pointer;font-weight:bold;transition:.2s}
+button:hover{background:var(--btn-hover)}
 .action-buttons{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.action-buttons button{background:#f0f0f0;color:#333;border:1px solid #ddd;width:auto}
-.action-buttons button:hover{background:#e0e0e0}
+.action-buttons button{background:var(--btn2);color:var(--text);border:1px solid var(--btn2-border);width:auto}
+.action-buttons button:hover{background:var(--btn2-hover)}
 .legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:.85rem;margin-bottom:20px}
-.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #ccc;margin-right:6px;vertical-align:-1px}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--border);margin-right:6px;vertical-align:-1px}
 .legend .l-m::before{background:var(--morning)}
 .legend .l-e::before{background:var(--evening)}
 .legend .l-o::before{background:var(--off)}
 .calendar-container{display:flex;flex-direction:column;gap:30px}
-.month{background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 6px rgba(0,0,0,.05)}
+.month{background:var(--panel);padding:20px;border-radius:12px;box-shadow:0 4px 6px var(--shadow)}
 .month h2{margin-top:0;font-size:1.2rem}
-.work-count{font-size:.85rem;color:#777;font-weight:normal;margin-left:8px}
+.work-count{font-size:.85rem;color:var(--muted2);font-weight:normal;margin-left:8px}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.day-name{font-weight:bold;font-size:.9rem;margin-bottom:10px;color:#666}
+.day-name{font-weight:bold;font-size:.9rem;margin-bottom:10px;color:var(--muted)}
 .day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;font-size:1.1rem;font-weight:bold}
-.day.morning{background:var(--morning);color:#333}
-.day.evening{background:var(--evening);color:#333}
-.day.off{background:var(--off);color:#666}
+.day.morning{background:var(--morning);color:var(--morning-t)}
+.day.evening{background:var(--evening);color:var(--evening-t)}
+.day.off{background:var(--off);color:var(--off-t)}
 .day.empty{background:transparent}
 .day-label{font-size:.6rem;font-weight:normal;margin-top:2px;opacity:.9}
 .past-month{opacity:.65}
-.hint{font-size:.9rem;color:#666;margin:0}
-#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:8px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:10}
+.hint{font-size:.9rem;color:var(--muted);margin:0}
+#theme-btn{position:absolute;top:14px;right:14px;width:36px;height:36px;max-width:none;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--muted);border:none;border-radius:50%}
+#theme-btn:hover{background:var(--btn2);color:var(--text)}
+#theme-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#theme-btn .i-sun{display:none}
+:root[data-theme="dark"] #theme-btn .i-sun{display:block}
+:root[data-theme="dark"] #theme-btn .i-moon{display:none}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--toast);color:#fff;padding:10px 18px;border-radius:8px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:10}
 #toast.show{opacity:1}
-#toggle-past-btn{background:#e0e0e0;color:#333;border:1px solid #ccc;display:none;margin:0 auto 20px;width:auto}
-.day.today{box-shadow:inset 0 0 0 2px #222;z-index:1}
+#toggle-past-btn{background:var(--btn2-hover);color:var(--text);border:1px solid var(--border);display:none;margin:0 auto 20px;width:auto}
+.day.today{box-shadow:inset 0 0 0 4px var(--today);z-index:1}
 @media (min-width:768px){.day span:first-child{font-size:1.6rem}}
 .placeholder-overlay{opacity:.4;pointer-events:none;filter:grayscale(100%)}
 @media print{
-#toast{display:none!important}
+#toast,#theme-btn{display:none!important}
+:root,:root[data-theme="dark"]{color-scheme:light;--bg:#fff;--text:#333;--panel:#fff;--muted:#666;--muted2:#777;--shadow:transparent}
 @page{size:A4 portrait;margin:8mm}
 body{background:#fff;padding:0;font-size:11px}
 #setup-panel,#action-panel,.legend{display:none!important}
@@ -74,9 +89,13 @@ h1{margin-bottom:10px;font-size:16px}
 </style>
 </head>
 <body>
+<button id="theme-btn" onclick="toggleTheme()" aria-label="Змінити тему" title="Змінити тему">
+  <svg class="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
 <h1>Мій графік 4/2</h1>
 <div id="print-legend">Біла клітинка — ранкова зміна, штрихована — вечірня, темно-сіра — вихідний.</div>
- 
+
 <div id="setup-panel" class="panel">
   <div class="form-group">
     <p class="hint">Вкажіть перший день будь-якого блоку з 4 змін — ранкових або вечірніх. Решту графіка буде розраховано автоматично.</p>
@@ -90,7 +109,7 @@ h1{margin-bottom:10px;font-size:16px}
     <button onclick="saveAndGenerate()">Показати графік</button>
   </div>
 </div>
- 
+
 <div id="action-panel" class="panel" style="display:none">
   <div class="action-buttons">
     <button onclick="shareLink()">🔗 Поділитися</button>
@@ -98,12 +117,12 @@ h1{margin-bottom:10px;font-size:16px}
     <button onclick="resetData()">🔄 Змінити графік</button>
   </div>
 </div>
- 
+
 <div class="legend"><span class="l-m">Ранок (1)</span><span class="l-e">Вечір (2)</span><span class="l-o">Вихідний</span></div>
 <button id="toggle-past-btn" onclick="togglePastMonth()">⏳ Показати минулий місяць</button>
 <div id="toast"></div>
 <div id="calendar-container" class="calendar-container"></div>
- 
+
 <script>
 const msPerDay = 86400000;
 const LS_KEY = 'sched42_start';
@@ -111,7 +130,7 @@ const LS_TYPE = 'sched42_type';
 const ukrMonths = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
 const ukrDays = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
 const labels = { morning: 'Ранок', evening: 'Вечір', off: 'Вих' };
- 
+
 function parseDate(s) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s || '')) return null;
   const [y, m, d] = s.split('-').map(Number);
@@ -119,11 +138,11 @@ function parseDate(s) {
   return isNaN(dt) ? null : dt;
 }
 const pad = n => String(n).padStart(2, '0');
- 
+
 function setUrl(s, t) {
   history.replaceState(null, null, `?s=${s}&t=${t}`);
 }
- 
+
 document.addEventListener('DOMContentLoaded', () => {
   // Посилання: ?s=РРРР-ММ-ДД&t=m|e (без t — ранкова; старі посилання ?d=&t=work1 ігноруються)
   const p = new URLSearchParams(location.search);
@@ -146,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPlaceholder();
   }
 });
- 
+
 function saveAndGenerate() {
   const s = document.getElementById('date-input').value;
   const t = document.getElementById('type-input').value === 'e' ? 'e' : 'm';
@@ -156,7 +175,7 @@ function saveAndGenerate() {
   setUrl(s, t);
   renderReal(s, t);
 }
- 
+
 function resetData() {
   const s = localStorage.getItem(LS_KEY);
   const t = localStorage.getItem(LS_TYPE);
@@ -169,7 +188,14 @@ function resetData() {
   document.getElementById('type-input').value = t === 'e' ? 'e' : 'm';
   renderPlaceholder();
 }
- 
+
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  document.querySelector('meta[name=theme-color]').content = next === 'dark' ? '#12151a' : '#e2efdb';
+  try { localStorage.setItem('sched42_theme', next); } catch (e) {}
+}
+
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -178,7 +204,7 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
- 
+
 async function shareLink() {
   const url = location.href;
   if (navigator.share) {
@@ -196,7 +222,7 @@ async function shareLink() {
     prompt('Скопіюйте посилання:', url);
   }
 }
- 
+
 // Цикл 12 днів: 0-3 ранок, 4-5 вихідні, 6-9 вечір, 10-11 вихідні
 function checkDayType(date, startStr, startType) {
   const a = parseDate(startStr);
@@ -208,28 +234,28 @@ function checkDayType(date, startStr, startType) {
   if (i >= 6 && i < 10) return 'evening';
   return 'off';
 }
- 
+
 function renderReal(s, t) {
   document.getElementById('setup-panel').style.display = 'none';
   document.getElementById('action-panel').style.display = 'block';
   generateCalendars(s, t, false);
 }
- 
+
 function renderPlaceholder() {
   const t = new Date();
   const s = `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
   if (!document.getElementById('date-input').value) document.getElementById('date-input').value = s;
   generateCalendars(s, 'm', true);
 }
- 
+
 function generateCalendars(startStr, startType, isPlaceholder) {
   const container = document.getElementById('calendar-container');
   container.innerHTML = '';
   container.classList.toggle('placeholder-overlay', isPlaceholder);
- 
+
   const today = new Date();
   let cur = new Date(today.getFullYear(), today.getMonth() - 1, 1);
- 
+
   for (let m = 0; m < 4; m++) {
     const monthDiv = document.createElement('div');
     monthDiv.className = 'month';
@@ -244,7 +270,7 @@ function generateCalendars(startStr, startType, isPlaceholder) {
     countSpan.className = 'work-count';
     title.appendChild(countSpan);
     monthDiv.appendChild(title);
- 
+
     const grid = document.createElement('div');
     grid.className = 'grid';
     ukrDays.forEach(n => {
@@ -253,7 +279,7 @@ function generateCalendars(startStr, startType, isPlaceholder) {
       el.innerText = n;
       grid.appendChild(el);
     });
- 
+
     let first = cur.getDay() - 1;
     if (first === -1) first = 6;
     for (let i = 0; i < first; i++) {
@@ -261,7 +287,7 @@ function generateCalendars(startStr, startType, isPlaceholder) {
       b.className = 'day empty';
       grid.appendChild(b);
     }
- 
+
     let total = 0;
     const dim = new Date(cur.getFullYear(), cur.getMonth() + 1, 0).getDate();
     for (let day = 1; day <= dim; day++) {
@@ -279,12 +305,12 @@ function generateCalendars(startStr, startType, isPlaceholder) {
     container.appendChild(monthDiv);
     cur.setMonth(cur.getMonth() + 1);
   }
- 
+
   const btn = document.getElementById('toggle-past-btn');
   btn.style.display = isPlaceholder ? 'none' : 'block';
   btn.innerText = '⏳ Показати минулий місяць';
 }
- 
+
 function togglePastMonth() {
   const block = document.getElementById('past-month-block');
   const btn = document.getElementById('toggle-past-btn');
@@ -292,7 +318,7 @@ function togglePastMonth() {
   block.style.display = hidden ? 'block' : 'none';
   btn.innerText = hidden ? '⬆️ Сховати минулий місяць' : '⏳ Показати минулий місяць';
 }
- 
+
 </script>
 </body>
 </html>
